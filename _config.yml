@@ -1,0 +1,6 @@
+name: koyamatch.com
+markdown: redcarpet
+pygments: true
+encoding: utf-8
+permalink: /:categories/:title.html
+timezone: Asia/Tokyo
