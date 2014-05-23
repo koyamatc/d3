@@ -1,5 +1,6 @@
 .highlight pre { background-color: #222 }
 .highlight .javascript { background-color: #222 }
+.highlight .html { background-color: #222 }
 .highlight .hll { background-color: #49483e }
 .highlight .c { color: #e7969c } /* Comment */
 .highlight .err { color: #960050; background-color: #1e0010 } /* Error */
@@ -64,3 +65,5 @@
 .highlight .gu { color: #e7969c; } /* Generic.Subheading & Diff Unified/Comment? */
 .highlight .gd { color: #f92672; } /* Generic.Deleted & Diff Deleted */
 .highlight .gi { color: #a6e22e; } /* Generic.Inserted & Diff Inserted */
+
+.highlight pre { font-size: 1.1em }
