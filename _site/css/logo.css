@@ -1,0 +1,89 @@
+/** logo style
+ ************** */ 
+div #logo {
+  height: 100px;
+}
+
+#logo {
+  font-size: 50px;
+  text-shadow: 4px 4px 0px #939393,
+               6px 6px 0px #1c1c1c;
+  margin-top: 10px;
+
+}
+
+#logo span {
+display: inline-block;
+position: relative;
+letter-spacing: -1px;
+-webkit-transition: all 0.2s ease-out;
+}
+
+#logo .char1 {
+  color : #f00;
+  -webkit-transform: rotate(-3deg);
+}
+#logo .char2 {
+  color : #0f0;
+}
+#logo .char3 {
+  color : gold;
+}
+#logo .char4 {
+  color : #00f;
+  -webkit-transform: rotate(-3deg);
+  top: -7px;
+}
+#logo .char5 {
+  color : #0f0;
+  top:-20px;
+}
+#logo .char6 {
+  color : #0ff;
+  top: -7px;
+  -webkit-transform: rotate(3deg);
+}
+#logo .char7 {
+  color : #f0f;
+}
+#logo .char8 {
+  color : #ff0;
+  top:-20px;
+}
+#logo .char9 {
+  color : #999;
+  -webkit-transform: rotate(5deg);
+}
+#logo .char10 {
+  color : #000;
+  top: -10px;
+}
+#logo .char11 {
+  color : #ccc;
+  -webkit-transform: rotate(3deg);
+}
+#logo .char12 {
+  color : #0DD42B;
+  top: -10px;
+}
+#logo .char13 {
+  color : #F22C16;
+  -webkit-transform: rotate(3deg);
+}
+
+#logo .char1:hover,
+#logo .char2:hover,
+#logo .char3:hover,
+#logo .char4:hover,
+#logo .char5:hover,
+#logo .char6:hover,
+#logo .char7:hover,
+#logo .char8:hover,
+#logo .char9:hover,
+#logo .char10:hover,
+#logo .char11:hover,
+#logo .char12:hover,
+#logo .char13:hover
+ {
+  top:5px;
+}
