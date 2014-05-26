@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="jp">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta http-equiv="X-UA-Compatible" CONTENT="IE=EmulateIE7" />
+  <title>d3</title>
+  <!-- Le styles -->
+  <link href="/css/bootstrapx.css" rel="stylesheet">
+  <link href="/css/bootstrap-glyphicons.css" rel="stylesheet">
+  <link href="/css/logo.css" rel="stylesheet">
+  <link href="/css/jklmain.css" rel="stylesheet">
+  <link href="/css/monokai.css" rel="stylesheet">
+  <link href="/css/d3.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+        <div class="row">
+      <div class="col-sm-5 col-md-5">
+        <div id="logo"><span>koyamatch.com</span></div>
+      </div>
+      <div class="col-sm-7 col-md-7">
+        <h1 id="subtitle" class="text-right">d3</h1>
+        <div class="row">
+          <div class="col-md-4"></div>
+          <div class="col-md-offset-4">
+          <a href="/"><h4><span class="glyphicon glyphicon-home text-white"> home</span></h4></a>
+          </div>
+        </div>  
+      </div>
+    </div><!--/row-->
+
+    
+    <h2>Scales</h2>
+<p class="meta">27 May 2014</p>
+
+<div class="post">
+<p>D3.jsにはデータを変換する関数があります。</p>
+
+<p>この関数は、入力値の領域を出力範囲に割り当てます(map)。</p>
+
+<p>D3.jsのスケールは関数ですから、入力ドメインを出力範囲へマップするだけではなく、ドメインの中の数値を出力範囲内の値へ変換します。</p>
+
+<p><em>数値の例</em></p>
+
+<p>入力データ x が　0&lt;= x &lt;=10,000 の値で</p>
+
+<p>これを　0&lt;= x &lt;=100　の範囲に変換したいとします。</p>
+
+<p>以下のようにしたいと思います。</p>
+
+<p>D3.jsのスケールでドメインをレンジにスケールダウンします。</p>
+
+<p>D3.jsでドメインと呼ぶ範囲を取り、D3.jsでレンジと呼ぶ新しい範囲へと変換します。</p>
+
+<p>こうする理由は、ここでのSVGビューポートの幅が100だからです。データをwinndow内に収める必要があるからです。</p>
+
+<p>この変換をするために、このアルゴリズムに従います。</p>
+
+<ul>
+<li>元の幅の最大値を取得します。( -&gt; 10000)</li>
+<li>元の幅の最小値を取得します。( -&gt; 0)</li>
+<li>元の幅の大小の差を計算します。(-&gt; 10000　- 0 = 10000)</li>
+<li>新しい幅の最大値を取得します。( -&gt; 100)</li>
+<li>新しい幅の最小値を取得します。( -&gt; 0)</li>
+<li>新しい幅の大小の差を計算します。(-&gt; 100　- 0 = 100)</li>
+<li>元の大小差を新しい大小差で割ります。(-&gt; 10000　/ 100 = 100)</li>
+</ul>
+
+<p>これは、元の幅の100単位が、新しい幅の1単位になるということです。</p>
+
+<p>これを、リニア・スケーリング(linear scaling)と呼びます。</p>
+
+<p>(y = mx + b , where b=0 and m = 1/100)</p>
+
+<p>今回の例では、x = 10000 ならば、それを100　で割って y = 100 を得ます。</p>
+
+<p>初期データが以下のとき</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="c1">//Initial Data</span>
+<span class="kd">var</span> <span class="nx">initialScaleData</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">,</span> <span class="mi">7000</span><span class="p">,</span> <span class="mi">6000</span><span class="p">,</span> <span class="mi">9000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">];</span>
+</code></pre></div>
+
+<p>新しい範囲に変換するために、各値を手作業で100で割ることができます。</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="c1">//New Data, scaled by 100 </span>
+<span class="kd">var</span> <span class="nx">scaledByOneHundredData</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">100</span><span class="p">];</span>
+</code></pre></div>
+
+<p>これは辛いので</p>
+
+<p>JavaScriptで書くと。</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">initialScaleData</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">,</span> <span class="mi">7000</span><span class="p">,</span> <span class="mi">6000</span><span class="p">,</span> <span class="mi">9000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">];</span>
+ 
+<span class="kd">var</span> <span class="nx">scaledByOneHundredData</span> <span class="o">=</span> <span class="p">[];</span>
+ 
+<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">initialScaleData</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">scaledByOneHundredData</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="nx">initialScaleData</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">/</span> <span class="mi">100</span><span class="p">;</span>
+<span class="p">}</span>
+ 
+<span class="nx">scaledByOneHundredData</span><span class="p">;</span>
+<span class="c1">//[0, 10, 30, 20, 50, 40, 70, 60, 90, 80, 100]</span>
+</code></pre></div>
+
+<p>よくはなりましたが、まだまだ手作業が残っています。</p>
+
+<p>いまだにコンピュータに、元の範囲（ドメイン）と新しい範囲（レンジ）を教えています。</p>
+
+<p>そこで、データがきたら、自動で変換してほしいですね。</p>
+
+<h2 id="toc_0">Linear　Scale</h2>
+
+<p>D3.jsは、Scale Linear関数を使うことで、自動的に変換をしてくれます。</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">identityScale</span> <span class="o">=</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">scale</span><span class="p">.</span><span class="nx">linear</span><span class="p">();</span>
+</code></pre></div>
+
+<p>これは、初期ドメインが[0,1]で、レンジが[0,1]という 1:1 のマッピングを行う、線形スケールを生成します。</p>
+
+<p>このデフォルトの線形スケールは、数字に対してidentity関数（入力値と同じ値を返す関数）のように働きます。</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">identityScale</span> <span class="o">=</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">scale</span><span class="p">.</span><span class="nx">linear</span><span class="p">();</span>
+
+<span class="nx">identityScale</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="c1">// 1</span>
+
+<span class="nx">identityScale</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="c1">// 2</span>
+</code></pre></div>
+
+<p>ドメインを指定することで、初期ドメインを書き換えます。</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">domainOnlyScale</span> <span class="o">=</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">scale</span><span class="p">.</span><span class="nx">linear</span><span class="p">()</span>
+                              <span class="p">.</span><span class="nx">domain</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">10000</span><span class="p">]);</span>
+</code></pre></div>
+
+<p>レンジは変更されていないので、[0, 10000]のドメインは[0,1]のレンジへ変換されています。</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">domainOnlyScale</span> <span class="o">=</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">scale</span><span class="p">.</span><span class="nx">linear</span><span class="p">()</span>
+                              <span class="p">.</span><span class="nx">domain</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">10000</span><span class="p">]);</span>
+
+<span class="nx">domainOnlyScale</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="c1">// 0.0001</span>
+
+<span class="nx">domainOnlyScale</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="c1">// 0.0002</span>
+</code></pre></div>
+
+<p>レンジを指定して、初期レンジを書き換えます。</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">linearScale</span> <span class="o">=</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">scale</span><span class="p">.</span><span class="nx">linear</span><span class="p">()</span>
+                          <span class="p">.</span><span class="nx">domain</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">10000</span><span class="p">])</span>
+                          <span class="p">.</span><span class="nx">range</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">]);</span>
+
+<span class="nx">linearScale</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="c1">//0.01</span>
+
+<span class="nx">linearScale</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+<span class="c1">// 0.1</span>
+
+<span class="nx">linearScale</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+<span class="c1">// 1</span>
+
+<span class="nx">linearScale</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+<span class="c1">// 10</span>
+
+<span class="nx">linearScale</span><span class="p">(</span><span class="mi">10000</span><span class="p">);</span>
+<span class="c1">// 100</span>
+</code></pre></div>
+
+<p>JavaScriptのコードにすると</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">initialScaleData</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">,</span> <span class="mi">7000</span><span class="p">,</span> <span class="mi">6000</span><span class="p">,</span> <span class="mi">9000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">];</span>
+ 
+<span class="kd">var</span> <span class="nx">newScaledData</span> <span class="o">=</span> <span class="p">[];</span>
+
+<span class="kd">var</span> <span class="nx">linearScale</span> <span class="o">=</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">scale</span><span class="p">.</span><span class="nx">linear</span><span class="p">()</span>
+                   <span class="p">.</span><span class="nx">domain</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">10000</span><span class="p">])</span>
+                   <span class="p">.</span><span class="nx">range</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">]);</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">initialScaleData</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">newScaledData</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="nx">linearScale</span><span class="p">(</span><span class="nx">initialScaleData</span><span class="p">[</span><span class="nx">i</span><span class="p">]);</span>
+<span class="p">}</span>
+
+<span class="c1">//newScaledData;</span>
+<span class="c1">//[0, 10, 30, 20, 50, 40, 70, 60, 90, 80, 100]</span>
+</code></pre></div>
+
+<h2 id="toc_1">D3.max</h2>
+
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">initialScaleData</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">,</span> <span class="mi">7000</span><span class="p">,</span> <span class="mi">6000</span><span class="p">,</span> 
+<span class="mi">9000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">];</span>
+</code></pre></div>
+
+<p>初期データの中で、最大値は10000であるとわかっているので、</p>
+
+<p>ドメインに[0,10000]と設定できました。</p>
+
+<p>もし最大値がわからなかったとしたら</p>
+
+<p>D3.jsには、配列から最大値を取得する関数 <em>d3.max</em> があります。</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">initialScaleData</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">,</span> <span class="mi">7000</span><span class="p">,</span> <span class="mi">6000</span><span class="p">,</span> <span class="mi">9000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">];</span>
+
+<span class="kd">var</span> <span class="nx">maxInitialData</span> <span class="o">=</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">initialScaleData</span><span class="p">);</span>
+<span class="c1">// 10000</span>
+</code></pre></div>
+
+<p>上のJavaScriptを書き換えると</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">initialScaleData</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">,</span> <span class="mi">7000</span><span class="p">,</span> <span class="mi">6000</span><span class="p">,</span> <span class="mi">9000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">];</span>
+
+<span class="kd">var</span> <span class="nx">newScaledData</span> <span class="o">=</span> <span class="p">[];</span>
+
+<span class="kd">var</span> <span class="nx">linearScale</span> <span class="o">=</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">scale</span><span class="p">.</span><span class="nx">linear</span><span class="p">()</span>
+                           <span class="p">.</span><span class="nx">domain</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="nx">d3</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">initialScaleData</span><span class="p">)])</span>
+                           <span class="p">.</span><span class="nx">range</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">]);</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">initialScaleData</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">newScaledData</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="nx">linearScale</span><span class="p">(</span><span class="nx">initialScaleData</span><span class="p">[</span><span class="nx">i</span><span class="p">]);</span>
+<span class="p">}</span>
+
+<span class="c1">//newScaledData;</span>
+<span class="c1">//[0, 10, 30, 20, 50, 40, 70, 60, 90, 80, 100]</span>
+</code></pre></div>
+
+<p>これで最大値がわからなくても、max値が助けてくれます。</p>
+
+<h2 id="toc_2">D3.min</h2>
+
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">initialScaleData</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">,</span> <span class="mi">7000</span><span class="p">,</span> <span class="mi">6000</span><span class="p">,</span> <span class="mi">9000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">];</span>
+</code></pre></div>
+
+<p>最小値が　0　だと知っているので　ドメインに[0,10000]と設定できます。</p>
+
+<p>もし最小値がわからなかったとしたら</p>
+
+<p>D3.jsには、配列から最小値を取得する関数 <em>d3.min</em> があります。</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">initialScaleData</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">,</span> <span class="mi">7000</span><span class="p">,</span> <span class="mi">6000</span><span class="p">,</span> <span class="mi">9000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">];</span>
+
+<span class="kd">var</span> <span class="nx">minInitialData</span> <span class="o">=</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="nx">initialScaleData</span><span class="p">);</span>
+<span class="c1">// 0</span>
+</code></pre></div>
+
+<p>JavaScriptを書き換えると</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">initialScaleData</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">,</span> <span class="mi">7000</span><span class="p">,</span> <span class="mi">6000</span><span class="p">,</span> <span class="mi">9000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">];</span>
+
+<span class="kd">var</span> <span class="nx">newScaledData</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="kd">var</span> <span class="nx">minDataPoint</span> <span class="o">=</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="nx">initialScaleData</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">maxDataPoint</span> <span class="o">=</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">initialScaleData</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">linearScale</span> <span class="o">=</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">scale</span><span class="p">.</span><span class="nx">linear</span><span class="p">()</span>
+                           <span class="p">.</span><span class="nx">domain</span><span class="p">([</span><span class="nx">minDataPoint</span><span class="p">,</span><span class="nx">maxDataPoint</span><span class="p">])</span>
+                           <span class="p">.</span><span class="nx">range</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">]);</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">initialScaleData</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">newScaledData</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="nx">linearScale</span><span class="p">(</span><span class="nx">initialScaleData</span><span class="p">[</span><span class="nx">i</span><span class="p">]);</span>
+<span class="p">}</span>
+
+<span class="c1">//newScaledData;</span>
+<span class="c1">//[0, 10, 30, 20, 50, 40, 70, 60, 90, 80, 100]</span>
+</code></pre></div>
+
+<p>最小値が分からなくても、この関数がマッピングを助けてくれます。</p>
+
+<h2 id="toc_3">その他の D3.js Scales</h2>
+
+<h3 id="toc_4">Quantitative Scales</h3>
+
+<p>日付、時間、実数、 etc 連続したドメインをとります (上記のLinear scaleもその1つです)</p>
+
+<ul>
+<li>Identity Scale
+
+<ul>
+<li>Linear Scale の特別な場合で、 ドメインとレンジが同一となります。座用軸とブラシ・コンポーネントとともに、ピクセル空間で使用するとき便利な場合があります。</li>
+</ul></li>
+<li>Power Scales
+
+<ul>
+<li>d3.scale.sqrt()<br>
+Constructs a new power scale with the default domain [0,1], the default range [0,1], and the exponent .5. This method is shorthand for:d3.scale.pow().exponent(.5)</li>
+<li>d3.scale.pow()<br>
+Constructs a new power scale with the default domain [0,1], the default range [0,1], and the default exponent 1.</li>
+</ul></li>
+<li>Log Scales
+
+<ul>
+<li>d3.scale.log()<br>
+Constructs a new log scale with the default domain [1,10], the default range [0,1], and the base 10.</li>
+</ul></li>
+<li>Quantize Scales
+
+<ul>
+<li>Linearスケールの変形で、ドメインは連続的な値をとるが、レンジは不連続な値をとります。<br>
+ドメインの値は、レンジの要素の個数で均等に分割されます。<br></li>
+</ul></li>
+</ul>
+
+<div class="highlight"><pre><code class="javascript"> <span class="kd">var</span> <span class="nx">q</span> <span class="o">=</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">scale</span><span class="p">.</span><span class="nx">quantize</span><span class="p">().</span><span class="nx">domain</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]).</span><span class="nx">range</span><span class="p">([</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">]);</span>
+ <span class="c1">//q(0.3) === &#39;a&#39;, q(0.4) === &#39;b&#39;, q(0.6) === &#39;b&#39;, q(0.7) ===&#39;c&#39;;</span>
+ <span class="c1">//q.invertExtent(&#39;a&#39;) returns [0, 0.3333333333333333]</span>
+</code></pre></div>
+
+<ul>
+<li>Quantile Scales</li>
+<li>Threshold Scales</li>
+<li> Ordinal scales<br>
+名前、カテゴリ、色、　etc 不連続なドメインをとります</li>
+</ul>
+
+<p><strong>線形スケールを使うことで、SVG座標空間をデータに合わせてサイズ変更するのではなく、前もって定義したSVG座標空間へデータを合わせることができます。</strong></p>
+
+</div>
+
+ 
+        <div class="row">
+      <footer>
+        <hr>
+        <div class="col-sm-8">
+          <p>&copy;koyamatc@koyamatch.com since 2002</p>
+        </div>
+        <div class="col-sm-2">
+          <p><a href="https://github.com/koyamatc">github.com/koyamatc</a></p>
+        </div>
+        <div class="col-sm-2">
+          <p><a href="https://www.facebook.com/koyamatc">www.facebook.com/koyamatc</a></p>
+        </div>
+      </footer>
+    </div>
+
+  </div><!-- container -->
+
+  <!-- JavaScript Libraries -->
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap.js"></script>
+  <script src="/js/jquery.lettering-0.6.1.min.js"></script>
+  <script src="/js/logo.js"></script>
+</body>
+</html>
+
