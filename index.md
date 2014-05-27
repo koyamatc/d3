@@ -23,9 +23,15 @@ layout: default
 
 	</div>
 	<div class="col-sm-4">
-		<h4>Scale</h4>
+		<h4>Scales</h4>
 		<ul class="post-list">
  			{% for post in site.categories.scale %}
+   				<li><a href="{{ post.url }}">{{ post.postTitle }}</a></li>
+ 			{% endfor %}
+		</ul>			
+		<h4>Shapes</h4>
+		<ul class="post-list">
+ 			{% for post in site.categories.shapes %}
    				<li><a href="{{ post.url }}">{{ post.postTitle }}</a></li>
  			{% endfor %}
 		</ul>			
