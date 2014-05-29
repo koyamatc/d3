@@ -29,6 +29,12 @@ layout: default
    				<li><a href="{{ post.url }}">{{ post.postTitle }}</a></li>
  			{% endfor %}
 		</ul>			
+		<h4>Layouts</h4>
+		<ul class="post-list">
+ 			{% for post in site.categories.layout %}
+   				<li><a href="{{ post.url }}">{{ post.postTitle }}</a></li>
+ 			{% endfor %}
+		</ul>			
 	</div>
 	<div class="col-sm-4">
 		<h3>SVG</h3>
