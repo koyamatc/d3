@@ -23,6 +23,13 @@ layout: default
 
 	</div>
 	<div class="col-sm-4">
+		<h4>Interpolation</h4>
+		<ul class="post-list">
+ 			{% for post in site.categories.interpolation %}
+   				<li><a href="{{ post.url }}">{{ post.postTitle }}</a></li>
+ 			{% endfor %}
+		</ul>			
+
 		<h4>Scales</h4>
 		<ul class="post-list">
  			{% for post in site.categories.scale %}
@@ -37,7 +44,6 @@ layout: default
 		</ul>			
 	</div>
 	<div class="col-sm-4">
-		<h3>SVG</h3>
 		<h4>Shapes</h4>
 		<ul class="post-list">
  			{% for post in site.categories.shapes %}
