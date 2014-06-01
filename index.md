@@ -52,5 +52,12 @@ layout: default
    				<li><a href="{{ post.url }}">{{ post.postTitle }}</a></li>
  			{% endfor %}
 		</ul>			
+		<h4>Geography</h4>
+		<ul class="post-list">
+ 			{% for post in site.categories.geo %}
+   				<li><a href="{{ post.url }}">{{ post.postTitle }}</a></li>
+ 			{% endfor %}
+		</ul>			
 	</div>
+
 </div>
