@@ -13,7 +13,7 @@ layout: default
 ###index
 
 <div class="row">
-	<div class="col-sm-4">
+	<div class="col-sm-3">
 		<h3><span class="label label-info">d3の基本</span></h3>
 		<ol class="post-list">
  			{% for post in site.categories.basics %}
@@ -22,7 +22,7 @@ layout: default
 		</ol>			
 	</div>
 
-	<div class="col-sm-4">
+	<div class="col-sm-3">
 		<h4>Interpolation</h4>
 		<ul class="post-list">
  			{% for post in site.categories.interpolation %}
@@ -45,7 +45,7 @@ layout: default
 		</ul>			
 	</div>
 
-	<div class="col-sm-4">
+	<div class="col-sm-3">
 		<h4>Shapes</h4>
 		<ul class="post-list">
  			{% for post in site.categories.shapes %}
@@ -55,6 +55,15 @@ layout: default
 		<h4>Geography</h4>
 		<ul class="post-list">
  			{% for post in site.categories.geo %}
+   				<li><a href="{{ post.url }}">{{ post.postTitle }}</a></li>
+ 			{% endfor %}
+		</ul>			
+	</div>
+
+	<div class="col-sm-3">
+		<h4>Transition</h4>
+		<ul class="post-list">
+ 			{% for post in site.categories.transition %}
    				<li><a href="{{ post.url }}">{{ post.postTitle }}</a></li>
  			{% endfor %}
 		</ul>			
