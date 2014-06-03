@@ -14,8 +14,104 @@ categories: Transition graph
 
 </div>
 
+<< 年を変更してください >>
 
 {% highlight javascript %}
+function AppViewModel() {
+
+  var width = 600,
+     height = 400;
+
+  var xScale = d3.scale.linear()
+                       .domain([1,12])
+                       .range([50,580]);
+  
+  var yScale = d3.scale.linear()
+                       .domain([0,80])
+                       .range([360,20]);                       
+
+  var line = d3.svg.line()
+      .x(function(d,i) { return xScale(i+1); })
+      .y(function(d) { return yScale(d); })
+      .interpolate("linear");
+
+  var svg01 = d3.select("#svg01").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+  //軸生成
+  var xAxis = d3.svg.axis()
+                   .scale(xScale);
+  var yAxis = d3.svg.axis()
+                   .scale(yScale)
+                   .orient(["left"]);
+  typeof(xAxis);
+  typeof(yAxis);
+
+  //　軸グループ生成し軸関数を呼ぶ
+  var xAxisGroup = svg01.append("g")
+          .attr("transform","translate(0,"+ yScale(0)+")")
+          .attr("stroke","white")
+          .attr("stroke-width","1")
+          .style("fill","none")
+          .call(xAxis);
+
+  var yAxisGroup = svg01.append("g")
+            .attr("transform","translate(" + xScale(0.6) + ",0)")
+            .attr("stroke","white")
+            .attr("stroke-width","1")
+            .style("fill","none")
+            .call(yAxis);
+  // ラインデータ
+  var lineData = [
+    {year:'2012',values:[40,40,10,20,50,50,30,70,40,30,40,50]},
+    {year:'2013',values:[10,20,30,40,60,60,50,40,30,20,10,30]},
+    {year:'2014',values:[60,50,70,60,20]}
+  ];
+
+  // knockout select 
+  years = ['2012','2013','2014'];
+  this.selectedYear = ko.observable('2013');
+
+  this.year = ko.computed(function() {
+    data = _.where(lineData,{year:this.selectedYear()});
+    monthData = _.map(data,function(data){return data.values});
+    redraw();    
+  }, this);
+
+  draw(); // 初期描画
+  
+  //** 初期描画 *//
+  function draw(){
+    svg01.selectAll(".graph").remove();
+
+    svg01.selectAll(".graph")
+      .data(monthData)
+    .enter().append("path")
+      .attr("stroke", "yellow")
+      .attr("stroke-width",3)
+      .attr("fill", "none")
+      .attr("class","graph")
+      .attr("d", line);
+  };
+  // 再描画
+  function redraw(){
+    svg01.selectAll(".graph")
+      .data(monthData)
+      .attr("class","graph")
+      .transition()
+      .duration(1000)
+      .ease("linear")
+      .attr("stroke", "yellow")
+      .attr("stroke-width",3)
+      .attr("fill", "none")
+      .attr("d", line);
+  };
+  
+};
+
+// Activates knockout.js
+ko.applyBindings(new AppViewModel());
 {% endhighlight %}
 
 <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -27,62 +123,99 @@ categories: Transition graph
   ApplicationViewModel
 **/
 function AppViewModel() {
+
   var width = 600,
-     height = 400
-     radius = Math.min(width, height) / 2;
+     height = 400;
 
-  var color = d3.scale.category20();
-
-  var pie = d3.layout.pie()
-      .value(function(d) { return d.apples; })
-      .sort(null);
-
-  var arc = d3.svg.arc()
-      .innerRadius(radius - 100)
-      .outerRadius(radius - 20);   
+  var xScale = d3.scale.linear()
+                       .domain([1,12])
+                       .range([50,580]);
   
+  var yScale = d3.scale.linear()
+                       .domain([0,80])
+                       .range([360,20]);                       
+
+  var line = d3.svg.line()
+      .x(function(d,i) { return xScale(i+1); })
+      .y(function(d) { return yScale(d); })
+      .interpolate("linear");
+
   var svg01 = d3.select("#svg01").append("svg")
         .attr("width", width)
-        .attr("height", height)
-      .append("g")
-        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+        .attr("height", height);
 
-  pie = [
-    {key:'2012',values:[40,40,10,20,50,50,30,70,40,30,40,50]},
-    {key:'2013',values:[10,20,30,40,60,60,50,40,30,20,10,30]}
+  //軸生成
+  var xAxis = d3.svg.axis()
+                   .scale(xScale);
+  var yAxis = d3.svg.axis()
+                   .scale(yScale)
+                   .orient(["left"]);
+  typeof(xAxis);
+  typeof(yAxis);
+
+  //　軸グループ生成し軸関数を呼ぶ
+  var xAxisGroup = svg01.append("g")
+          .attr("transform","translate(0,"+ yScale(0)+")")
+          .attr("stroke","white")
+          .attr("stroke-width","1")
+          .style("fill","none")
+          .call(xAxis);
+
+  var yAxisGroup = svg01.append("g")
+            .attr("transform","translate(" + xScale(0.6) + ",0)")
+            .attr("stroke","white")
+            .attr("stroke-width","1")
+            .style("fill","none")
+            .call(yAxis);
+  // ラインデータ
+  var lineData = [
+    {year:'2012',values:[40,40,10,20,50,50,30,70,40,30,40,50]},
+    {year:'2013',values:[10,20,30,40,60,60,50,40,30,20,10,30]},
+    {year:'2014',values:[60,50,70,60,20]}
   ];
-  
+
+  // knockout select 
+  years = ['2012','2013','2014'];
   this.selectedYear = ko.observable('2013');
-  var data = _.where(pie,{key:this.selectedYear()});
-  console.log(data);
 
   this.year = ko.computed(function() {
-        draw(this.selectedYear());
+    data = _.where(lineData,{year:this.selectedYear()});
+    monthData = _.map(data,function(data){return data.values});
+    redraw();    
   }, this);
 
+  draw(); // 初期描画
   
-  function draw(s){
+  //** 初期描画 *//
+  function draw(){
+    svg01.selectAll(".graph").remove();
 
-    var path = svg01.selectAll("path")
-      .data(data)
+    svg01.selectAll(".graph")
+      .data(monthData)
     .enter().append("path")
-      .attr("fill", function(d, i) { return color(i); })
-      .attr("d", arc)
-      .each(function(d) { this._current = d; }); // store the initial angles
-
-    
-  function change() {
-    var value = this.value;
-    pie.value(function(d) { return d[value]; }); // change the value function
-    path = path.data(pie); // compute the new angles
-    path.transition().duration(750).attrTween("d", arcTween); // redraw the arcs
-  }
+      .attr("stroke", "yellow")
+      .attr("stroke-width",3)
+      .attr("fill", "none")
+      .attr("class","graph")
+      .attr("d", line);
+  };
+  // 再描画
+  function redraw(){
+    svg01.selectAll(".graph")
+      .data(monthData)
+      .attr("class","graph")
+      .transition()
+      .duration(1000)
+      .ease("linear")
+      .attr("stroke", "yellow")
+      .attr("stroke-width",3)
+      .attr("fill", "none")
+      .attr("d", line);
   };
   
 };
 
 // Activates knockout.js
 ko.applyBindings(new AppViewModel());
-
 
 </script>
