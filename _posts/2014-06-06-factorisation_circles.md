@@ -41,7 +41,8 @@ categories: Transition demos
   var dot_radius =100;
 
   var ticks = [];
-  for (var i=1;i<= d3.max(counts); i++){
+  var maxCounts = d3.max(counts);
+  for (var i=1;i<= maxCounts; i++){
       ticks.push(i);
   };
 
@@ -102,12 +103,12 @@ categories: Transition demos
   // Run button clicked
   d3.select("#run").on("click",function(){
     ticks = [];
-    for (var i=1;i<=parent.selectedCounts(); i++){
+    var parentSelectedCounts = parent.selectedCounts();
+    for (var i=1;i<=parentSelectedCounts; i++){
       ticks.push(i);
     };
  
-
-    for (var i = 1; i <= parent.selectedCounts(); i++) {
+    for (var i = 1; i <= parentSelectedCounts; i++) {
 
       make(i,250); // create points for circles
       var delay = 1000 * i; // create delay time
@@ -119,8 +120,8 @@ categories: Transition demos
 
   /** transition circles */
   function draw0(delay,circles){
-
-      for (l=0;l<points.length;l++){
+      var pointsLength = points.length;
+      for (l=0;l<pointsLength;l++){
         var el = d3.select("#c"+l);
 
         text.transition()
@@ -190,6 +191,7 @@ categories: Transition demos
 
   }
 
+
   // http://nayuki.eigenstate.org/res/calculate-prime-factorization-javascript.js
 
   function primeFactorList(n) {
@@ -204,6 +206,7 @@ categories: Transition demos
       }
       return result;
   }
+
 
   function smallestFactor(n) {
       if (n < 2)
@@ -246,7 +249,8 @@ function AppViewModel() {
   var dot_radius =100;
 
   var ticks = [];
-  for (var i=1;i<= d3.max(counts); i++){
+  var maxCounts = d3.max(counts);
+  for (var i=1;i<= maxCounts; i++){
       ticks.push(i);
   };
 
@@ -307,15 +311,15 @@ function AppViewModel() {
   // Run button clicked
   d3.select("#run").on("click",function(){
     ticks = [];
-    for (var i=1;i<=parent.selectedCounts(); i++){
+    var parentSelectedCounts = parent.selectedCounts();
+    for (var i=1;i<=parentSelectedCounts; i++){
       ticks.push(i);
     };
  
-
-    for (var i = 1; i <= parent.selectedCounts(); i++) {
+    for (var i = 1; i <= parentSelectedCounts; i++) {
 
       make(i,250); // create points for circles
-      var delay = 1000 * i; // create delay time
+      var delay = 1500 + 1000 * i; // create delay time
       draw0(delay,i); // transition
 
     };
@@ -324,8 +328,8 @@ function AppViewModel() {
 
   /** transition circles */
   function draw0(delay,circles){
-
-      for (l=0;l<points.length;l++){
+      var pointsLength = points.length;
+      for (l=0;l<pointsLength;l++){
         var el = d3.select("#c"+l);
 
         text.transition()

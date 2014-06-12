@@ -14,7 +14,7 @@ layout: default
 
 <div class="row">
 	<div class="col-sm-3">
-		<h3><span class="label label-info">d3の基本</span></h3>
+		<h3><span class="label label-info">JavaScriptの基本</span></h3>
 		<ol class="post-list">
  			{% for post in site.categories.basics %}
    				<li><a href="{{ post.url }}">{{ post.postTitle }}</a></li>
