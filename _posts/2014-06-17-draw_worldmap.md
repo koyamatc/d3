@@ -26,9 +26,9 @@ Natural Earth　の地図データを使い、D3.jsで世界地図を描いて�
 
 
 <script src="http://d3js.org/d3.v3.min.js"></script>
-<script src="{{site.url}}/js/knockout-3.1.0.js" charset="utf-8"></script
 <script src="http://d3js.org/queue.v1.min.js"></script>
 <script src="http://d3js.org/topojson.v0.min.js"></script>
+<script src="{{site.url}}/js/knockout-3.1.0.js" charset="utf-8"></script>
 <script type="text/javascript">
 /**
   ApplicationViewModel
@@ -55,6 +55,35 @@ function AppViewModel() {
     var projection;
     var path;
 
+  d3.json("{{site.url}}/assets/json/countries.topojson", function(error, world) {
+      // 国の情報を取り出す
+      var countries = topojson.object(world, world.objects.world).geometries;
+      g.selectAll("path")
+          .data(countries)
+        .enter().append("path")
+          .attr("d", path)
+          .attr("class","country")
+          .attr("id", function(d,i){return "country" +i /*d.properties.name*/;})
+          .style("fill",function(d,i){
+            return (selectedClipAngle()==90) ? "#ddd":color(i%20);})
+          .call(drag)
+          .on("mouseover",function(d,i){mouseOver(i)})
+          .on("mouseout",function(d,i){mouseOut(i)});
+         // 境界線を描画   
+      g.append("path")
+        .datum(topojson.mesh(world, world.objects.world, function(a, b) { return a !== b; }))
+        .attr("d", path)
+        .attr("class", "boundary")
+        .style("fill", "none")
+        .attr("stroke", "#777")
+        .attr("stroke-dasharray", "2,2")
+        .attr("stroke-linejoin", "round");  
+    
+           
+  });
+
+
+
   c_clipAngle = ko.computed(function() {
 
     projection = d3.geo.orthographic()
@@ -64,7 +93,7 @@ function AppViewModel() {
     path = d3.geo.path()
                    .projection(projection); 
 
-    svg.selectAll("path").remove();
+    //svg.selectAll("path").remove();
 
     g.append("path")
       .datum({type: "Sphere"})
@@ -82,21 +111,6 @@ function AppViewModel() {
               .attr("stroke","red")
               .attr("stroke-width","1px");
 */
-  d3.json("{{site.url}}/assets/json/world.geojson", function(error, world) {
-    
-      g.selectAll("path")
-          .data(world.features)
-        .enter().append("path")
-          .attr("d", path)
-          .attr("class","country")
-          .attr("id", function(d,i){return "country" +i /*d.properties.name*/;})
-          .style("fill",function(d,i){
-            return (selectedClipAngle()==90) ? "#ddd":color(i%20);})
-          .call(drag)
-          .on("mouseover",function(d,i){mouseOver(i)})
-          .on("mouseout",function(d,i){mouseOut(i)});
-           
-  });
 
     g.selectAll("path").attr("d", path);
   }, this);
@@ -109,7 +123,7 @@ function AppViewModel() {
         .on("drag", function() {
             var rotate = projection.rotate();
             projection.rotate([d3.event.x * sens, -d3.event.y * sens, rotate[2]]);
-            svg.selectAll("path.country").attr("d", path);
+            svg.selectAll("path").attr("d", path);
           }); 
 
   function transition() {
