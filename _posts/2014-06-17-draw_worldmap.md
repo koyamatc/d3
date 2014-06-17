@@ -17,7 +17,7 @@ categories: Geo maps
 
   </div>
 </div>
-<button id="run" class="btn btn-info">move</button>
+<button id="run" class="btn btn-info" data-bind="click:move">move</button>
 
 Natural Earth　の地図データを使い、D3.jsで世界地図を描いてみました。
 
@@ -55,7 +55,38 @@ function AppViewModel() {
     var projection;
     var path;
 
+    // 経緯度線の描画  
+    var graticule = d3.geo.graticule();
+
+  c_clipAngle = ko.computed(function() {
+
+    projection = d3.geo.orthographic()
+              .scale(350) 
+              .translate([width / 2, height / 2])
+              .clipAngle(selectedClipAngle());
+    
+    path = d3.geo.path()
+                   .projection(projection); 
+
+    g.selectAll("path").remove();
+
+    g.append("path")
+      .datum({type: "Sphere"})
+      .attr("class", "sphere")
+      .attr("d", path)
+      .style("fill","navy");
+
+
+/*
+    g.append("path")
+         .datum(graticule)
+         .attr("class", "graticule")
+         .attr("d", path)
+         .attr("stroke","red")
+         .attr("stroke-width","1px");
+*/
   d3.json("{{site.url}}/assets/json/countries.topojson", function(error, world) {
+ 
       // 国の情報を取り出す
       var countries = topojson.object(world, world.objects.world).geometries;
       g.selectAll("path")
@@ -78,41 +109,11 @@ function AppViewModel() {
         .attr("stroke", "#777")
         .attr("stroke-dasharray", "2,2")
         .attr("stroke-linejoin", "round");  
-    
            
   });
 
 
-
-  c_clipAngle = ko.computed(function() {
-
-    projection = d3.geo.orthographic()
-              .scale(250) 
-              .translate([width / 2, height / 2])
-              .clipAngle(selectedClipAngle());
-    path = d3.geo.path()
-                   .projection(projection); 
-
-    //svg.selectAll("path").remove();
-
-    g.append("path")
-      .datum({type: "Sphere"})
-      .attr("class", "sphere")
-      .attr("d", path)
-      .style("fill","navy");
-
-    // 経緯度線の描画  
-/**    var graticule = d3.geo.graticule();
-
-    g.append("path")
-              .datum(graticule)
-              .attr("class", "graticule")
-              .attr("d", path)
-              .attr("stroke","red")
-              .attr("stroke-width","1px");
-*/
-
-    g.selectAll("path").attr("d", path);
+    //g.selectAll("path").attr("d", path);
   }, this);
     
 
@@ -123,7 +124,10 @@ function AppViewModel() {
         .on("drag", function() {
             var rotate = projection.rotate();
             projection.rotate([d3.event.x * sens, -d3.event.y * sens, rotate[2]]);
-            svg.selectAll("path").attr("d", path);
+
+            g.selectAll("path.country").attr("d", path);
+            g.selectAll("path.boundary").attr("d", path);
+
           }); 
 
   function transition() {
@@ -133,7 +137,7 @@ function AppViewModel() {
         var r = d3.interpolate(projection.rotate(), [-p[0], -p[1]]);
         return function(t) {
           projection.rotate(r(t));
-          g.selectAll("path").attr("d", path)
+ 
         };
       })
   };  
@@ -146,6 +150,10 @@ function AppViewModel() {
     var el = "#country" + id;
     d3.select(el).style("fill",
       function(){return (selectedClipAngle()==90) ? "#ddd":color(id%20);});
+  }
+
+  this.move = function(){
+
   }
 };
 
