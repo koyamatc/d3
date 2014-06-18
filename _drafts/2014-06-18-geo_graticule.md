@@ -1,7 +1,7 @@
 ---
 title: d3
 layout: post
-postTitle: 世界地図の描画 
+postTitle: 経緯度線 
 categories: Geo maps
 ---
 <div class="row">
@@ -19,9 +19,6 @@ categories: Geo maps
 </div>
 <button id="run" class="btn btn-info" data-bind="click:move">move</button>
 
-Natural Earth　の地図データを使い、D3.jsで世界地図を描いてみました。
-
-地図の上でマウスを動かすと、回転します。
 
 
 
@@ -39,17 +36,19 @@ function AppViewModel() {
   clipAngle = [90,180];
   selectedClipAngle = ko.observable(90);
 
+  color = d3.scale.category20c();
+
   var width = 900,
      height = 700,
        sens = 0.25;
-
-  var color = d3.scale.category20c();  
 
   var svg = d3.select("#svg").append("svg")
         .attr("width", width)
         .attr("height", height);
 
    var g = svg.append("g");
+   var graticules =g.append("g")
+   var countryGroup = g.append("g");
 
 
     var projection;
@@ -57,6 +56,7 @@ function AppViewModel() {
 
     // 経緯度線の描画  
     var graticule = d3.geo.graticule();
+
 
   c_clipAngle = ko.computed(function() {
 
@@ -70,38 +70,34 @@ function AppViewModel() {
 
     g.selectAll("path").remove();
 
-    g.append("path")
-      .datum({type: "Sphere"})
-      .attr("class", "sphere")
-      .attr("d", path)
-      .style("fill","navy");
-
-
-/*
-    g.append("path")
+    graticules//.selectAll(".graticule")
+     //    .data(graticule.lines())
+     //    .enter()
+         .append("path")
          .datum(graticule)
          .attr("class", "graticule")
          .attr("d", path)
-         .attr("stroke","red")
+          .attr("stroke","red")
          .attr("stroke-width","1px");
-*/
+         //.call(drag);
+
   d3.json("{{site.url}}/assets/json/countries.topojson", function(error, world) {
  
       // 国の情報を取り出す
       var countries = topojson.object(world, world.objects.world).geometries;
-      g.selectAll("path")
+      countryGroup.selectAll("path")
           .data(countries)
         .enter().append("path")
           .attr("d", path)
           .attr("class","country")
-          .attr("id", function(d,i){return "country" +i /*d.properties.name*/;})
+          .attr("id", function(d,i){return "country" +i ;})
           .style("fill",function(d,i){
             return (selectedClipAngle()==90) ? "#ddd":color(i%20);})
           .call(drag)
           .on("mouseover",function(d,i){mouseOver(i)})
           .on("mouseout",function(d,i){mouseOut(i)});
          // 境界線を描画   
-      g.append("path")
+      countryGroup.append("path")
         .datum(topojson.mesh(world, world.objects.world, function(a, b) { return a !== b; }))
         .attr("d", path)
         .attr("class", "boundary")
@@ -111,7 +107,6 @@ function AppViewModel() {
         .attr("stroke-linejoin", "round");  
            
   });
-
 
     //g.selectAll("path").attr("d", path);
   }, this);
@@ -125,8 +120,9 @@ function AppViewModel() {
             var rotate = projection.rotate();
             projection.rotate([d3.event.x * sens, -d3.event.y * sens, rotate[2]]);
 
-            g.selectAll("path.country").attr("d", path);
-            g.selectAll("path.boundary").attr("d", path);
+            countryGroup.selectAll("path").attr("d", path);
+            graticules.selectAll("path").attr("d", path);
+
 
           }); 
 
