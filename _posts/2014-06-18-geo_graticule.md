@@ -49,6 +49,27 @@ categories: Geo maps
   </div>
 </div>
 
+{% highlight javascript %}
+// 経緯度線用グループ追加
+var graticuleGroup =g.append("g");
+// 経緯度線の取得  
+var graticule = d3.geo.graticule()
+       .step([selectedLong(),selectedLang()]);
+// 経緯度線の描画
+graticuleGroup.append("path")
+     .datum(graticule)
+     .attr("class", "graticule")
+     .attr("d", path)
+     .attr("stroke","red")
+     .attr("stroke-width","1px")
+     .style("fill","none")
+     .attr("opacity",function(){
+          return selectedGraticules()?1:0;
+      });
+{% endhighlight %}
+
+### step();
+.step([経度線の間隔,緯度線の間隔]);
 
 
 <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -66,9 +87,9 @@ function AppViewModel() {
   selectedClipAngle = ko.observable(90);
   graticules = [false,true];
   selectedGraticules = ko.observable(true);
-  long = [5,10,15,20,30,60,80,90];
+  long = [5,10,15,20,30,45,60,80,90];
   selectedLong = ko.observable(30);
-  lang = [5,10,15,20,30,60,80,90];
+  lang = [5,10,15,20,30,45,60,80,90];
   selectedLang = ko.observable(30);
 
   var width = 900,
@@ -96,7 +117,9 @@ function AppViewModel() {
 
     // 経緯度線の取得  
     var graticule = d3.geo.graticule()
-                    .minorStep([selectedLong(),selectedLang()]);
+                    .step([selectedLong(),selectedLang()]);
+ //   var graticuleM = d3.geo.graticule()
+ //                   .majorStep([90,180]);
     // プロジェクションの指定
     projection = d3.geo.orthographic()
               .scale(350) 
@@ -124,7 +147,18 @@ function AppViewModel() {
          .attr("opacity",function(){
               return selectedGraticules()?1:0;
              });
-
+/*
+    graticuleGroup.append("path")
+         .datum(graticuleM)
+         .attr("class", "graticule")
+         .attr("d", path)
+         .attr("stroke","gold")
+         .attr("stroke-width","2px")
+         .style("fill","none")
+         .attr("opacity",function(){
+              return selectedGraticules()?1:0;
+             });
+*/
     // topojsonを読み込み　国の描画
     d3.json("{{site.url}}/assets/json/countries.topojson", function(error, world) {
       countryName = [];
