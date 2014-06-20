@@ -46,6 +46,19 @@ categories: Geo maps
         </select>
       </div>
     </div>
+
+    <div class="row">
+      <div class="col-sm-6">
+        <span class="label label-info">Country</span>
+      </div>
+      <div class="col-sm-6">  
+        <select data-bind="options: country,
+                        value: selectedCountry,
+                        valueAllowUnset: true">
+        </select>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -91,12 +104,14 @@ function AppViewModel() {
   selectedLong = ko.observable(30);
   lang = [5,10,15,20,30,45,60,80,90];
   selectedLang = ko.observable(30);
+  country =["","Japan"]   
+  selectedCountry = ko.observable("");
 
   var width = 900,
      height = 700;　// svg の高さと幅
 
   var color = d3.scale.category20c(); // 色  
-  var countryName = [];               // 国名
+  var countryName = [];               // 国の配列
   var sens = 0.25;　                   // ドラッグ時の感度
 
   var svg = d3.select("#svg").append("svg")
@@ -110,6 +125,7 @@ function AppViewModel() {
 
   var projection;　// プロジェクション用
   var path;       // path用
+
 
 
   /** グローブの描画 **/
@@ -147,18 +163,7 @@ function AppViewModel() {
          .attr("opacity",function(){
               return selectedGraticules()?1:0;
              });
-/*
-    graticuleGroup.append("path")
-         .datum(graticuleM)
-         .attr("class", "graticule")
-         .attr("d", path)
-         .attr("stroke","gold")
-         .attr("stroke-width","2px")
-         .style("fill","none")
-         .attr("opacity",function(){
-              return selectedGraticules()?1:0;
-             });
-*/
+
     // topojsonを読み込み　国の描画
     d3.json("{{site.url}}/assets/json/countries.topojson", function(error, world) {
       countryName = [];
@@ -230,6 +235,21 @@ function AppViewModel() {
       function(){return (selectedClipAngle()==90) ? "#ddd":color(id%20);});
     d3.selectAll("text").remove();
    }
+   
+
+   selectCountry = ko.computed(function(){
+    selectedCountry();
+      for (var i = 0; i < countryName.length; i++) {
+        if (countryName[i] == selectedCountry()){
+
+          projection.rotate([-135,-34]);
+          g.selectAll("path")
+            .transition()
+            .duration(1000)
+            .attr("d",path);
+        }
+      };
+   },this);
 
 };
 
