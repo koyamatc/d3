@@ -1,0 +1,123 @@
+{
+	"objects":[
+	{
+		"kind":"0",
+		"places":[
+			{	"name":"札幌",
+				"coordinates":[135,34],
+				"addr":"",
+				"tel":"",
+				"tel":""
+			},
+			{	"name":"函館",
+				"coordinates":[138,34],
+				"addr":"",
+				"tel":""
+			},
+			{	"name":"福島",
+				"coordinates":[138,34],
+				"addr":"",
+				"tel":""
+			},
+			{	"name":"新潟",
+				"coordinates":[138,34],
+				"addr":"",
+				"tel":""
+			},
+			{	"name":"東京",
+				"coordinates":[138,34],
+				"addr":"",
+				"tel":""
+			},
+			{	"name":"中山",
+				"coordinates":[138,34],
+				"addr":"",
+				"tel":""
+			},
+			{	"name":"中京",
+				"coordinates":[138,34],
+				"addr":"",
+				"tel":""
+			},
+			{	"name":"京都",
+				"coordinates":[138,34],
+				"addr":"",
+				"tel":""
+			},
+			{	"name":"阪神",
+				"coordinates":[138,34],
+				"addr":"",
+				"tel":""
+			},
+			{	"name":"小倉",
+				"coordinates":[140,34],
+				"addr":"",
+				"tel":""
+			}
+		]
+	},
+	{
+		"kind":"1",
+		"places":[
+			{	"name":"11",
+				"coordinates":[],
+				"addr":"",
+				"tel":""
+			},
+			{	"name":"12",
+				"coordinates":[],
+				"addr":"",
+				"tel":""
+			},
+			{	"name":"13",
+				"coordinates":[],
+				"addr":"",
+				"tel":""
+			}
+		]
+
+	},
+	{
+		"kind":"2",
+		"places":[
+			{	"name":"21",
+				"coordinates":[],
+				"addr":"",
+				"tel":""
+			},
+			{	"name":"22",
+				"coordinates":[],
+				"addr":"",
+				"tel":""
+			},
+			{	"name":"23",
+				"coordinates":[],
+				"addr":"",
+				"tel":""
+			}
+		]
+
+	},
+	{
+		"kind":"3",
+		"places":[
+			{	"name":"31",
+				"coordinates":[],
+				"addr":"",
+				"tel":""
+			},
+			{	"name":"32",
+				"coordinates":[],
+				"addr":"",
+				"tel":""
+			},
+			{	"name":"33",
+				"coordinates":[],
+				"addr":"",
+				"tel":""
+			}
+		]
+
+	}
+	]
+}
