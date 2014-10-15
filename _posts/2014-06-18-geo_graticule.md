@@ -113,6 +113,7 @@ function AppViewModel() {
   var color = d3.scale.category20c(); // 色  
   var countryName = [];               // 国の配列
   var sens = 0.25;　                   // ドラッグ時の感度
+  var focused;
 
   var svg = d3.select("#svg").append("svg")
         .attr("width", width)
@@ -134,8 +135,7 @@ function AppViewModel() {
     // 経緯度線の取得  
     var graticule = d3.geo.graticule()
                     .step([selectedLong(),selectedLang()]);
- //   var graticuleM = d3.geo.graticule()
- //                   .majorStep([90,180]);
+
     // プロジェクションの指定
     projection = d3.geo.orthographic()
               .scale(350) 
@@ -144,6 +144,7 @@ function AppViewModel() {
     // パスの指定
     path = d3.geo.path()
                    .projection(projection); 
+   
     // パスの削除               
     g.selectAll("path").remove();
     // 輪郭の描画
@@ -152,6 +153,7 @@ function AppViewModel() {
       .attr("class", "sphere")
       .attr("d", path)
       .style("fill","navy");
+   
     // 経緯度線の描画
     graticuleGroup.append("path")
          .datum(graticule)
@@ -237,19 +239,12 @@ function AppViewModel() {
    }
    
 
-   selectCountry = ko.computed(function(){
+  selectCountry = ko.computed(function(){
     selectedCountry();
-      for (var i = 0; i < countryName.length; i++) {
-        if (countryName[i] == selectedCountry()){
 
-          projection.rotate([-135,-34]);
-          g.selectAll("path")
-            .transition()
-            .duration(1000)
-            .attr("d",path);
-        }
-      };
-   },this);
+
+  },this);
+
 
 };
 

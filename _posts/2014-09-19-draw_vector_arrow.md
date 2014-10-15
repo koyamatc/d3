@@ -77,7 +77,7 @@ function AppViewModel() {
   var x0 = y0 = 0;
   /* ベクトル線　描画関数　*/
   function drawVector(svg,x0,y0,angles,length,color,name){
-    console.log(name);
+
     var vectorData = [];
     var radians = angles * aDegree;
     var radians1 = pi + radians + pi/6;

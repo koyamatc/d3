@@ -121,4 +121,13 @@ p,ol,li {
 */
 .MathJax_Display {
   text-align: left !important;
+  color: #fff;
+}
+.MathJax_SVG_Display {
+  text-align: left !important;
+}
+.MathJax_SVG g{
+  stroke:#fff;
+  stroke-width:2;
+  fill:#fff;
 }
