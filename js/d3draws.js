@@ -290,11 +290,7 @@
 
 
   /* path　描画関数　*/
-  function drawPath(svg,data,stroke,strokeWidth,fillColor,xScale,yScale){
-
-    var stroke = stroke?stroke:"#000";
-    var strokeWidth = strokeWidth?strokeWidth:2;
-    var fillColor = fillColor?fillColor:"none";
+  function drawPath(svg,data,attrs,xScale,yScale){
 
     var path = d3.svg.line()
         .x(function(d) { return xScale?xScale(d.x):d.x; })
@@ -303,9 +299,20 @@
 
     svg.append("path")
           .attr("d", path(data))
-          .attr("stroke",stroke)
-          .attr("stroke-width",strokeWidth)
-          .style("fill",fillColor);
+          .attr("stroke",function(){
+            return attrs.stroke?attrs.stroke:"#000"})
+          .attr("stroke-width", function(){
+            return attrs.strokeWidth?attrs.strokeWidth:2
+          })
+          .attr("opacity", function(){
+            return attrs.opacity?attrs.opacity:1
+          })
+          .style("fill", function(){
+            return attrs.fillColor?attrs.fillColor:"none"
+          })
+          .attr("id", function(){
+            return attrs.id?attrs.id:""
+          });
  
   };
 
@@ -701,14 +708,28 @@
     var x1 = data["xScale"].domain()[1];
     var y0 = data["yScale"].domain()[0];
     var y1 = data["yScale"].domain()[1];
+
+    /* bug fix 20141024 start 1.0.1 */
+    if (x0 > x1) {
+      var _x = x1;
+      x1 = x0;
+      x0 = _x;
+    };
+    if (y0 > y1) {
+      var _y = y1;
+      y1 = y0;
+      y0 = _y;
+    };
+    /* bug fix 20141024 end*/
+
     var xStep = data["xStep"]?data["xStep"]:50;
     var yStep = data["yStep"]?data["yStep"]:50;
     var stroke = data["stroke"]?data["stroke"]:"#ccc";
     var strokeWidth = data["strokeWidth"]?data["strokeWidth"]:1;
     var opacity = data["opacity"]?data["opacity"]:0.5;
 
- //   var gridGroup = svg.append("g")
-   //                   .attr("class","gridGroup");
+    var gridGroup = svg.append("g")
+                      .attr("class","gridGroup");
 
     if (data["xGrid"]){
 
@@ -716,7 +737,7 @@
 
         if (i!=0){
 
-          svg.append("line")
+          gridGroup.append("line")
             .attr("x1",data["xScale"](i))
             .attr("y1",data["yScale"](y0))
            .attr("x2",data["xScale"](i))
@@ -735,7 +756,7 @@
 
         if (i!=0){
 
-          svg.append("line")
+          gridGroup.append("line")
             .attr("x1",data["xScale"](x0))
             .attr("y1",data["yScale"](i))
            .attr("x2",data["xScale"](x1))
