@@ -21,7 +21,7 @@ categories: Transition demos
       <input type="number" class="form-control text-right" data-bind="value:angle">
 
       <br>
-      <button data-bind="click:run" class="btn btn-success">Draw</button>
+      <button data-bind="click:run" class="btn btn-success">Run</button>
       <br>
       <button data-bind="click:reset" class="btn btn-warning">Reset</button>
       <br>
@@ -101,23 +101,41 @@ function AppViewModel() {
   }, this);
 
   this.run = function() {
-    //redraw(this.degrees(),this.selectedLineWidth());    
+  var el = [];
+  for (var i = 0; i < circles.length; i++) {
+    el.push(svg01.select("#c"+i));
+  };
+
+  for (var i = 0; i < pathData01.length; i=i+1) {
+  
+    for (var j = 0; j < circles.length; j++) {
+      el[j].transition()
+        .delay(500*j + i*50)
+        .duration(50)
+        .attr("cx",function(){ return xScale01(pathData01[i].x); } )
+        .attr("cy",function(){ return yScale01(pathData01[i].y); } )
+        .attr("r", function(){ return 5+i*0.03} )
+
+    };
+  };
   }; 
   this.reset = function() {
     draw();    
   }; 
   this.hide = function() {
-    //redraw(this.degrees(),this.selectedLineWidth());    
+    svg01.selectAll(".spiral")
+    .attr("opacity",0);
   }; 
   this.show = function() {
-    //redraw(this.degrees(),this.selectedLineWidth());    
+    svg01.selectAll(".spiral")
+    .attr("opacity",1);
   }; 
 
   function draw(Bx,By){
     svg01.selectAll(".spiral").remove();
     svg01.selectAll("circle").remove();
-    
-    for (i=0;i<=24*pi;i=i+0.1){
+    pathData01=[];
+    for (i=0;i<=18*pi;i=i+0.1){
   
       rx = Math.pow(Bx,i);
       ry = Math.pow(By,i);
@@ -125,13 +143,12 @@ function AppViewModel() {
 
     }
 
-  
     svg01.append("path")
+      .attr("d", line(pathData01))
       .attr("stroke", "yellow")
       .attr("stroke-width",3)
       .attr("fill", "none")
-      .attr("class","spiral")
-      .attr("d", line(pathData01));
+      .attr("class","spiral");
 
     for (var i=0;i<circles.length;i++){
       svg01.append("circle")
