@@ -9,32 +9,33 @@ categories: Transition demos
     <div id="svg01"></div>
   </div>
   <div class="col-sm-4">
-    <h4>始点、角度、長さ、色を設定してください</h4>
+    <h3>
     <div class="btn-group-vertical">
       <span class="label">ｘ の係数</span>
-      <input type="number" class="form-control text-right" data-bind="value:xB">
+      <input  class="form-control text-right" data-bind="value:xB">
 
       <span class="label">ｙ　の係数</span>
-      <input type="number" class="form-control text-right" data-bind="value:yB">
+      <input class="form-control text-right" data-bind="value:yB">
 
-      <span class="label">角度</span>
+      <span class="label">回転角度( x 180°)</span>
       <input type="number" class="form-control text-right" data-bind="value:angle">
 
       <br>
-      <button data-bind="click:run" class="btn btn-success">Run</button>
+      <button data-bind="click:run" class="btn btn-info">Run</button>
       <br>
       <button data-bind="click:reset" class="btn btn-warning">Reset</button>
       <br>
-      <button data-bind="click:hide" class="btn btn-success">
+      <button data-bind="click:hide" class="btn btn-info">
         Hide spiral</button>
       <br>
       <button data-bind="click:show" class="btn btn-warning">Show spiral</button>
+    </h3>
     </div>      
   </div>
 </div>
 
 <script src="http://d3js.org/d3.v3.min.js"></script>
-<script src="{{site.url}}/js/knockout-3.1.0.js" charset="utf-8"></script>
+<script src="{{site.url}}/js/knockout-3.3.0.js" charset="utf-8"></script>
 
 <script type="text/javascript">
 /**
@@ -45,7 +46,7 @@ function AppViewModel() {
   // ko variables
   this.xB = ko.observable(1.12);
   this.yB = ko.observable(1.12);
-  this.angle = ko.observable(24);
+  this.angle = ko.observable(18);
 
   // Point Object
   function Point(x, y){
@@ -93,11 +94,11 @@ function AppViewModel() {
 
   
   //** 初期描画 *//
-  draw(this.xB(),this.yB());
+  draw(this.xB(),this.yB(),this.angle());
 
   // 再描画
   ko.computed(function() {
-      draw(this.xB(),this.yB()); 
+      draw(this.xB(),this.yB(),this.angle()); 
   }, this);
 
   this.run = function() {
@@ -120,7 +121,7 @@ function AppViewModel() {
   };
   }; 
   this.reset = function() {
-    draw();    
+    draw(this.xB(),this.yB(),this.angle());    
   }; 
   this.hide = function() {
     svg01.selectAll(".spiral")
@@ -131,11 +132,11 @@ function AppViewModel() {
     .attr("opacity",1);
   }; 
 
-  function draw(Bx,By){
+  function draw(Bx,By,loops){
     svg01.selectAll(".spiral").remove();
     svg01.selectAll("circle").remove();
     pathData01=[];
-    for (i=0;i<=18*pi;i=i+0.1){
+    for (i=0;i<=loops*pi;i=i+0.1){
   
       rx = Math.pow(Bx,i);
       ry = Math.pow(By,i);
