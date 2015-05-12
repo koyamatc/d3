@@ -43,6 +43,13 @@ layout: default
    				<li><a href="{{ post.url }}">{{ post.postTitle }}</a></li>
  			{% endfor %}
 		</ul>			
+
+		<h4>Event</h4>
+		<ul class="post-list">
+ 			{% for post in site.categories.event %}
+   				<li><a href="{{ post.url }}">{{ post.postTitle }}</a></li>
+ 			{% endfor %}
+		</ul>			
 	</div>
 
 	<div class="col-sm-3">
