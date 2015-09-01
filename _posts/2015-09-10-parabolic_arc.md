@@ -36,10 +36,20 @@ categories: SVG Shapes
       >
         Hide Net
       </button>
-    </div>      
+    </div>
+    <br>
+    <img src="{{site.url}}/images/parabolic_arc.png"
+          width="450" height="450" 
+    >
+    <br> 
+    点Q, R, P の座標は以下の式で求められる
+    $$Q=(1-t)A + tB$$
+    $$R=(1-t)B + tC$$
+    $$P=(1-t)Q + tR$$     
   </div>
 </div>
 
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="{{site.url}}/js/knockout-3.1.0.js" charset="utf-8"></script>
 
@@ -69,8 +79,8 @@ function AppViewModel() {
   var P =[]; // touching point
 
   var clickedTime = 0;
-  var width = 500,
-     height = 500;
+  var width = 450,
+     height = 450;
 
   // constants     
   var radiusOfBasePoints = 10;
