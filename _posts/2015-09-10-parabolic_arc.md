@@ -279,6 +279,15 @@ function AppViewModel() {
     Q = [];
     R = [];
     P = [];
+
+    $("#parabola").html("Hide Parabola")          
+                  .removeClass("btn-success")
+                  .addClass("btn-warning");          
+    $("#net").html("Hide Net")          
+                  .removeClass("btn-success")
+                  .addClass("btn-warning");          
+            
+
   };
   
   this.parabola = function(){
