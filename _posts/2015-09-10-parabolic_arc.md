@@ -22,11 +22,11 @@ categories: SVG Shapes
       <button data-bind="click:reset" class="btn btn-danger">Reset</button>
       <br>
       <button 
-        data-bind="click:parabola" 
-        id="parabola" 
+        data-bind="click:control" 
+        id="control" 
         class="btn btn-warning"
       >
-        Hide Parabola
+        Hide Control Line
       </button>
       <br>
       <button 
@@ -152,7 +152,8 @@ function AppViewModel() {
        .attr("stroke", function(){return colorOfBaseLines})
        .attr("stroke-width", 3)
        .attr("fill", "none")
-       .attr("class","baseLines");
+       .attr("class","baseLines")
+       .attr("opacity",1);
 
     // separates points　Q　and R
     getQR();
@@ -280,7 +281,7 @@ function AppViewModel() {
     R = [];
     P = [];
 
-    $("#parabola").html("Hide Parabola")          
+    $("#control").html("Hide Control Line")          
                   .removeClass("btn-success")
                   .addClass("btn-warning");          
     $("#net").html("Hide Net")          
@@ -290,22 +291,22 @@ function AppViewModel() {
 
   };
   
-  this.parabola = function(){
+  this.control = function(){
     if (P.length==0){return};
 
-    var opacity = svg01.select(".parabola")
+    var opacity = svg01.select(".baseLines")
                             .attr("opacity");
                             
     if (opacity==0){
-      $("#parabola").html("Hide Parabola")          
+      $("#control").html("Hide Control Line")          
                     .removeClass("btn-success")
                     .addClass("btn-warning");          
     } else {
-      $("#parabola").html("Show Parabola")
+      $("#control").html("Show Control Line")
                     .removeClass("btn-warning")
                     .addClass("btn-success");          
     };                        
-    svg01.select(".parabola")
+    svg01.select(".baseLines")
             .attr("opacity",function(){
               return opacity==0?1:0;
             })
@@ -343,9 +344,6 @@ function AppViewModel() {
        .on("dragend", function(){ 
             d3.select(this).attr("opacity",1)
   });
-
-  // クラスがdraggableのときdragを呼び出す 
-//  svg01.selectAll(".basePoints").call(drag);
 
   // ドラッグ中の制御　画面をはみ出さない
   function dragmove(d){
