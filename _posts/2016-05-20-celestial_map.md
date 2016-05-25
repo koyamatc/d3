@@ -85,7 +85,7 @@ graticuleGroup.append("path")
 .step([経度線の間隔,緯度線の間隔]);
 
 
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/d3.v3.js"></script>
 <script src="http://d3js.org/queue.v1.min.js"></script>
 <script src="http://d3js.org/topojson.v1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/lodash/4.12.0/lodash.min.js"></script>
@@ -98,7 +98,7 @@ function AppViewModel() {
 
   // knockout select 
   clipAngle = [90,180];
-  selectedClipAngle = ko.observable(125);
+  selectedClipAngle = ko.observable(-90);
   graticules = [false,true];
   selectedGraticules = ko.observable(true);
   long = [5,10,15,20,30,45,60,80,90];
@@ -139,17 +139,15 @@ function AppViewModel() {
                     .step([selectedLong(),selectedLang()]);
 
     // プロジェクションの指定
-    projection = d3.geo.stereographic()
-              .scale(350) 
+    projection = d3.geo.orthographic()
+              .scale(300) 
               .translate([width / 2, height / 2])
               .clipAngle(selectedClipAngle());
-    
-    var yScale = d3.scale.linear()
-                       .domain([-180,180])
-                       .range([180,-180]);                       
+
 
     // パスの指定
     path = d3.geo.path()
+            //.projection(matrix(1, 0, 0, -1, 0, height))
              .projection(projection)
              .pointRadius(function(d){
                 var mag = _.get(d.properties,'mag');
@@ -181,10 +179,10 @@ function AppViewModel() {
              });
 
     // topojsonを読み込み　国の描画
-    d3.json("{{site.url}}/assets/json/stars6.topojson", function(error, json) {
+    d3.json("{{site.url}}/assets/json/hyg.topojson", function(error, json) {
       starsName = [];
       // 国の情報を取り出す
-      var stars = topojson.feature(json, json.objects["stars.6"]);// 国の描画
+      var stars = topojson.feature(json, json.objects["hyg"]);// 国の描画
       starsGroup.selectAll("path")
           .data(stars.features)
         .enter().append("path")
@@ -215,6 +213,7 @@ function AppViewModel() {
       })
 
     // topojsonを読み込み　国の描画
+    /*
     d3.json("{{site.url}}/assets/json/constellations.lines.topojson", function(error, json) {
 
       // 国の情報を取り出す
@@ -233,6 +232,7 @@ function AppViewModel() {
 
 
       })
+*/
   }, this);
 
   // ドラッグの設定
@@ -300,6 +300,13 @@ function AppViewModel() {
     var r = 0.3 * Math.exp(exp * (mag+2));
     return Math.max(r, 0.1);
    }
+  
+  function matrix(a, b, c, d, tx, ty) {
+    return d3.geo.transform({
+      point: function(x, y) { this.stream.point(a * x + b * y + tx, c * x + d * y + ty); }
+    });
+  }
+
 };
 
 // Activates knockout.js
