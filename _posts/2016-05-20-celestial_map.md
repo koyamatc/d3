@@ -97,8 +97,8 @@ graticuleGroup.append("path")
 function AppViewModel() {
 
   // knockout select 
-  clipAngle = [90,180];
-  selectedClipAngle = ko.observable(-90);
+  clipAngle = [0,90,180,270,360];
+  selectedClipAngle = ko.observable(90);
   graticules = [false,true];
   selectedGraticules = ko.observable(true);
   long = [5,10,15,20,30,45,60,80,90];
@@ -139,7 +139,7 @@ function AppViewModel() {
                     .step([selectedLong(),selectedLang()]);
 
     // プロジェクションの指定
-    projection = d3.geo.orthographic()
+    projection = d3.geo.stereographic()
               .scale(300) 
               .translate([width / 2, height / 2])
               .clipAngle(selectedClipAngle());
@@ -182,9 +182,10 @@ function AppViewModel() {
     d3.json("{{site.url}}/assets/json/hyg.topojson", function(error, json) {
       starsName = [];
       // 国の情報を取り出す
-      var stars = topojson.feature(json, json.objects["hyg"]);// 国の描画
+      var stars = topojson.feature(json, json.objects.hyg);// 国の描画
+      console.log(json.objects.hyg);
       starsGroup.selectAll("path")
-          .data(stars.features)
+          .data(json.objects.hyg)
         .enter().append("path")
           .attr("d", path)
           .attr("class",function(d,i){
