@@ -109,7 +109,7 @@ function AppViewModel() {
   selectedCountry = ko.observable("");
 
   var width = 900,
-     height = 700;　// svg の高さと幅
+     height = 900;　// svg の高さと幅
 
   var color = d3.scale.category20c(); // 色  
   var starsName = [];               // 国の配列
@@ -140,9 +140,9 @@ function AppViewModel() {
 
     // プロジェクションの指定
     projection = d3.geo.stereographic()
-              .scale(300) 
+              .scale(400) 
               .translate([width / 2, height / 2])
-              .clipAngle(selectedClipAngle());
+              .clipAngle(90);
 
 
     // パスの指定
@@ -152,7 +152,7 @@ function AppViewModel() {
              .pointRadius(function(d){
                 var mag = _.get(d.properties,'mag');
                 if (mag === null) return 0.1; 
-                  var r = 7 * Math.exp(-0.3 * (mag+2));
+                  var r = 5 * Math.exp(-0.28 * (mag+2));
                   return Math.max(r, 0.1);
               }); 
    
@@ -182,10 +182,12 @@ function AppViewModel() {
     d3.json("{{site.url}}/assets/json/hyg.topojson", function(error, json) {
       starsName = [];
       // 国の情報を取り出す
-      var stars = topojson.feature(json, json.objects.hyg);// 国の描画
-      console.log(json.objects.hyg);
+      /*
+      var stars = topojson.feature(json, json.objects.hyg);
+      console.log(stars);
+      */
       starsGroup.selectAll("path")
-          .data(json.objects.hyg)
+          .data(json.objects.hyg.features)
         .enter().append("path")
           .attr("d", path)
           .attr("class",function(d,i){
