@@ -21,6 +21,8 @@ categories: Geo maps
 
   var color = d3.scale.category20c(); // 色  
   var starsName = [];               　　// 星名の配列
+  var sens = 0.25;　                   // ドラッグ時の感度
+  var focused;
 
   var svg = d3.select("#svg").append("svg")
         .attr("width", width)
@@ -32,11 +34,9 @@ categories: Geo maps
   var starsGroup = g.append("g"); 　　// 星用グループ追加
   var projection;　// プロジェクション用
   var path;       // path用
-  var overlay;
-  var rScale = 1;
 
   /** グローブの描画 **/
-
+/*
     // 経緯度線の取得  
     var graticule = d3.geo.graticule();
 
@@ -56,7 +56,7 @@ categories: Geo maps
              .pointRadius(function(d){
                 var mag = _.get(d.properties,'mag');
                 if (mag === null) return 0.1; 
-                  var r = 3.5 * Math.exp(-0.28 * (mag+2)) * rScale;
+                  var r = 5 * Math.exp(-0.28 * (mag+2));
                   return Math.max(r, 0.1);
               }); 
    
@@ -76,44 +76,50 @@ categories: Geo maps
          .attr("d", path)
          .attr("stroke","red")
          .attr("stroke-width","1px")
-         .style("fill","none");
+         .style("fill","none")
+         .attr("opacity",function(){
+              return selectedGraticules()?0.7:0;
+             });
 
-     // overlay 
-     overlay = sphereGroup.append('circle').datum(state)
+    // topojsonを読み込み　国の描画
+    d3.json("{{site.url}}/assets/json/hyg.topojson", function(error, json) {
+      starsName = [];
+      // 国の情報を取り出す
+      starsGroup.selectAll("path")
+          .data(json.objects.hyg.features)
+        .enter().append("path")
+          .attr("d", path)
+          .attr("class",function(d,i){
+            return "star";
+          })
+          .attr("id", function(d,i){
+            starsName.push(d.properties.name);
+            return "star" +i;})
+          .style("fill",function(d,i){
+            return (selectedClipAngle()==90) ? "#ddd":color(i%20);})
+    //      .call(drag)
+          .on("mouseover",function(d,i){mouseOver(i)})
+          .on("mouseout",function(d,i){mouseOut(i)});
+  
+
+     // Append the overlay and set its attributes
+     var overlay = svg.append('circle').datum(state)
              .attr('r', height / 2)        
              .attr('transform', function() {
                  return 'translate(' + [width / 2, height / 2] + ')';        })
              .attr('fill-opacity', 0);          
 
-
-    // topojsonを読み込み　星の描画
-    d3.json("{{site.url}}/assets/json/hyg.topojson", function(error, json) {
-      starsName = [];
-      // 星の情報を取り出す
-      starsGroup.selectAll("path")
-          .data(json.objects.hyg.features)
-        .enter().append("path")
-          .attr("d", path)
-          .attr("class", "star")
-          .attr("id", function(d,i){
-            starsName.push(d.properties.name);
-            return "star" +i;})
-          .style("fill",function(d,i){
-            return ci(d.properties.color);})
-           .on("mouseover",function(d,i){mouseOver(i)})
-          .on("mouseout",function(d,i){mouseOut(i)});
- 
-      // zoom behaviorを設定
+      // Create and configure the zoom behavr
       var zoomBehavior = d3.behavior.zoom()
               .scaleExtent([0.5, 8])
               .on('zoom', zoom);
-      // overlayに　zoom behaviorのイベント　リスナーを設定
+      // Add event listeners for the zoom gestures to the overlay
       overlay.call(zoomBehavior); 
-   });
-      
-  // ** マウスオーバーの設定 
+*/
+  //** マウスオーバーの設定 **/
   function mouseOver(id){
-    var el = "#star" + id;
+    var el = "#country" + id;
+    d3.select(el).style("fill","red");
     starsGroup.append("text")
     .text(starsName[id])
     .attr("x",function(){return d3.mouse(this)[0] +0;})
@@ -122,47 +128,30 @@ categories: Geo maps
     .style("fill","gold")
     .attr("font-size","1em")
     .attr("font-family","sans-serif");
-  };
-
-  // マウスアウトの設定 
-  function mouseOut(id){
-    var el = "#star" + id;
-    d3.selectAll("text").remove();
-   };
-
-  // zoom 設定
-  function zoom(d) {    
-      // プロジェクションの scale と translate　を取得
-      var scale = d3.event.scale,
-             dx = d3.event.translate[0],
-             dy = d3.event.translate[1];
-       rScale = scale;      
-      // 回転角を計算
-      d.x = 180 / width * dx;    // Horizontal rotation
-      d.y = -180 / height * dy;  // Vertical rotation
-     // 新しい回転とスケールでプロジェクションを更新
-     projection.rotate([d.x, d.y])
-               .scale(scale * d.scale);
-    // path と overlay 半径　再計算
-    svg.selectAll('path').attr('d', path);
-    overlay.attr('r', scale * height / 2);          
-  };
-
-  // color index to color
-  function ci(i) {
-      
-      if (i >= 1.4){
-        return "#f00";
-      } else if (i >= 0.7) {
-        return "#FAA0E9";
-      } else if (i >= 0.2) {
-        return "#ff0";
-      } else if (i < -0.1) {
-        return "#9DBCF5";
-      } else {
-        return "#fff";
-      }
-     
   }
 
+  //** マウスアウトの設定 **//
+  function mouseOut(id){
+    var el = "#star" + id;
+    d3.select(el).style("fill",
+      function(){return (selectedClipAngle()==90) ? "#ddd":color(id%20);});
+    d3.selectAll("text").remove();
+   }
+/*
+  function zoom(d) {    
+      // Compute the projection scale and the constant
+      var scale = d3.event.scale,
+              dx = d3.event.translate[0],
+              dy = d3.event.translate[1];
+      // Maps the translation vector to rotation angles...
+      d.x = 180 / width * dx;    // Horizontal rotation
+      d.y = -180 / height * dy;  // Vertical rotation
+     // Update the projection with the new rotation and scale
+     projection.rotate([d.x, d.y])
+               .scale(scale * d.scale);
+    // Recompute the paths and the overlay radius
+    svg.selectAll('path').attr('d', path);
+    overlay.attr('r', scale * height / 2);          
+  }
+*/
 </script>
