@@ -10,16 +10,35 @@ categories: Geo maps
     <div id="svg"></div>
   </div>
 </div>
+<div class="row">
+    <div class="col-xs-2">
+        <span class="label label-info">Graticules(経緯線)</span>
+    </div>
+    <div class="col-xs-2">  
+        <select data-bind="options: graticules,
+                        value: selectedGraticules,
+                        valueAllowUnset: true">
+        </select>
+    </div>
+</div>
+
 <script src="http://d3js.org/d3.v3.js"></script>
 <script src="http://d3js.org/queue.v1.min.js"></script>
 <script src="http://d3js.org/topojson.v1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/lodash/4.12.0/lodash.min.js"></script>
+<script src="{{site.url}}/js/knockout-3.1.0.js" charset="utf-8"></script>
 <script type="text/javascript">
+/**
+  ApplicationViewModel
+**/
+function AppViewModel() {
 
-  var width = 900,
-     height = 900;　// svg の高さと幅
+  graticules = [false,true];
+  selectedGraticules = ko.observable(true);
 
-  var color = d3.scale.category20c(); // 色  
+  var width = 700,
+     height = 700;　// svg の高さと幅
+
   var starsName = [];               　　// 星名の配列
 
   var svg = d3.select("#svg").append("svg")
@@ -34,14 +53,14 @@ categories: Geo maps
   var path;       // path用
   var overlay;
   var rScale = 1;
-
+  // プロジェクションのローテーションとスケール
+  var state = {x: 40, y: -45, scale: height / 2};                
+  
   /** グローブの描画 **/
-
+  f_clipAngle = ko.computed(function() {
     // 経緯度線の取得  
     var graticule = d3.geo.graticule();
 
-    // プロジェクションのローテーションとスケール
-    var state = {x: 0, y: -45, scale: height / 2};                
     // プロジェクションの指定
     projection = d3.geo.stereographic()
               .scale(state.scale) 
@@ -56,7 +75,7 @@ categories: Geo maps
              .pointRadius(function(d){
                 var mag = _.get(d.properties,'mag');
                 if (mag === null) return 0.1; 
-                  var r = 3.5 * Math.exp(-0.28 * (mag+2)) * rScale;
+                  var r = 2.5 * Math.exp(-0.28 * (mag+2)) * rScale;
                   return Math.max(r, 0.1);
               }); 
    
@@ -76,7 +95,10 @@ categories: Geo maps
          .attr("d", path)
          .attr("stroke","red")
          .attr("stroke-width","1px")
-         .style("fill","none");
+         .style("fill","none")
+         .attr("opacity",function(){
+              return selectedGraticules()?1:0;
+             });
 
      // overlay 
      overlay = sphereGroup.append('circle').datum(state)
@@ -110,7 +132,8 @@ categories: Geo maps
       // overlayに　zoom behaviorのイベント　リスナーを設定
       overlay.call(zoomBehavior); 
    });
-      
+ }, this);
+
   // ** マウスオーバーの設定 
   function mouseOver(id){
     var el = "#star" + id;
@@ -164,5 +187,8 @@ categories: Geo maps
       }
      
   }
+};
 
+// Activates knockout.js
+ko.applyBindings(new AppViewModel());
 </script>
