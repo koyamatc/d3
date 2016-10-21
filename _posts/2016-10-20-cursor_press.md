@@ -10,77 +10,20 @@ categories: event
 <div class="row">
   <div class="col-sm-6 col-md-6">
     <div id="svg01"></div>
-    <button id="Rotate" class="btn btn-info">Rotate</button>
   </div>
   <div class="col-sm-6 col-md-6">
-    <h3>
-    <ul>
-      <li>ドラッグできる円とできない円の制御</li>
-      <li>ドラッグ開始時の属性設定</li>
-      <li>ドラッグ中の制御</li>
-      <li>ドラッグ終了時の属性設定</li>
-    </ul>
-    </h3>
   </div>
 </div>
+<div class="row">
+  <div class="col-md-6">
+    <div id="angles"></div>
+  </div>
+</div>
+
+<p>仮想の球面上に描いた点を、カーソルキー（矢印キー）を使い</p>
+<p>視線を移動して見回します</p>
+<p>実際は球体を回転させて視野を変更しています</p>
 {% highlight javascript %}
-  var radius = 25;　// 円の半径
-  var height = 500;　// 画面の高さ
-  var width = 500;  // 画面の幅
-
-  // 円のデータ
-  var circles = [
-    {"cx":100,"cy":100 ,"r":radius,"class":"draggable","fill":"yellow"},
-    {"cx":200,"cy":200,"r":radius,"class":"undraggable","fill":"red"},
-    {"cx":300,"cy":300 ,"r":radius,"class":"draggable","fill":"lime"},
-    {"cx":400,"cy":400 ,"r":radius,"class":"draggable","fill":"aqua"}
-  ];
-
-  // svg空間作成 
-  var svg01 =  d3.select("#svg01")
-                 .append("svg:svg")
-                 .attr("height", 500)
-                 .attr("width", 500)
-                 .style("background","#111");
-
-  /** add circles */
-  var circle = svg01.selectAll("circle")
-                .data(circles)
-                .enter()
-                .append("circle");
-  // 属性             
-  var circleAttributes = circle
-       .attr("cx", function (d) { return d.cx; })
-       .attr("cy", function (d) { return d.cy; })
-       .attr("r", function (d) { return d.r; })
-       .style("fill", function(d) { return d.fill;})
-       .attr("class", function(d) { return d.class;});
-  
-  // ドラッグ時の挙動
-  var drag = d3.behavior.drag()
-        //ドラッグ開始時の処理
-       .on("dragstart", function(){
-            d3.select(this).attr("opacity",0.4)
-          }) 
-       　//ドラッグ中の処理
-       .on("drag", dragmove)
-        //ドラッグ終了時の処理
-       .on("dragend", function(){ 
-            d3.select(this).attr("opacity",1)
-          });
-
-  // クラスがdraggableのときdragを呼び出す 
-  d3.selectAll(".draggable").call(drag);
-
-  // ドラッグ中の制御　画面をはみ出さない
-  function dragmove(d){
-    d3.select(this)
-      .attr("cx", 
-        d.x = Math.max(radius, Math.min(width - radius, d3.event.x)))
-      .attr("cy", 
-        d.y = Math.max(radius, Math.min(height - radius, d3.event.y)));
-  };              
-
 {% endhighlight %}    
 
 <script src="//code.jquery.com/jquery-1.11.3.js"></script>
@@ -98,14 +41,19 @@ var $window = $(window)
                 );
   $('code').css({"font-size":"1.05em","color":"#f00"});
   $('canvas').css({"background":"#fff"});
+  var scrollTop = 500; 
+  $window.scrollTop(scrollTop);
   
-  var sphereRadius = 500;　// 天球の半径
+  var sphereRadius = 400;　// 天球の半径
   var height = 500;　// 画面の高さ
   var width = 700;  // 画面の幅
   var pi2 = Math.PI * 2;
   var pi = Math.PI;
   var aDegree = Math.PI / 180;
-  
+  var thetaX = 0;
+  var thetaY = 0;
+  var thetaZ = 0;
+   
   function Point3d(x, y, z, label, r){
     this.x = x;
     this.y = y;
@@ -113,7 +61,6 @@ var $window = $(window)
     this.label = label;
     this.r = r;
   };
-  
   // 点のデータ
   points0 = [];
   points = [];
@@ -137,12 +84,14 @@ var $window = $(window)
     points0.push(new Point3d(x_,y_,z_,i+count,4));
   };
 
+  points0.push(new Point3d(0,0,sphereRadius,"Z",10));
+  points0.push(new Point3d(0,0,-sphereRadius,"Z-",10));
+
   for (var i = 0; i < points0.length; i++) {
-    if (points0[i].y >=0){
+    if (isInBound(points0[i].x,points0[i].y,points0[i].z)){
       points.push(points0[i]);
     }
   };
-
 
   // svg空間作成 
   var svg01 =  d3.select("#svg01")
@@ -173,9 +122,9 @@ function draw(){
   // 属性             
   var circleAttributes = circle
        .attr("cx", function (d) { 
-          var x = 60 * d.x / d.y;
+          var x = 350 * d.x / d.y;
           //console.log(d.x);
-          return xScale(d.x); 
+          return xScale(x); 
         })
        .attr("cy", function (d) { return yScale(d.z); })
        .attr("r", function (d) { return d.r; })
@@ -186,36 +135,71 @@ function draw(){
    .enter()
    .append("text")
    .attr("x", function(d) { 
-      var x = 60 * d.x / d.y;
-      return xScale(d.x);} ) // x座標の位置
+      var x = 350 * d.x / d.y;
+      return xScale(x);} ) // x座標の位置
    .attr("y", function(d) { return yScale(d.z -30);}) // y座標の位置
    //.attr("text-anchor", function(d){ return d.anchor}) // x,y座標に対してアンカー指定 
    .text(function(d) {return d.label;})  // 文字列の設定
    .attr("font-family", "sans-serif") // font属性
    .attr("font-size", "20px") // fontｻｲｽﾞ
    .style("fill","#fff"); 
+
+   //console.log(points.length);
+
+   var angles = "RA= " + Math.floor(thetaZ/aDegree) 
+             + "  λ= " + Math.floor(thetaX/aDegree);
+   $("#angles").html(angles); 
 }
 
   draw();
 
-  var step = 0
-  function rotation(rad){
+  // スクロール
+  function rotation(){
+      
       points = [];
-      step += rad;
-      for (var i = 0; i < points0.length; i++) {
-        var x = points0[i].x * Math.cos(step) + points0[i].y * Math.sin(step); 
-        var y = -points0[i].x * Math.sin(step) + points0[i].y * Math.cos(step);
-        var z = points0[i].z;
-        if (y >=0){
-          points.push( new Point3d(x,y,z,i,4));
-        }
 
+      var count = points0.length;
+
+      for (var i = 0; i < count; i++) {
+
+          var x = points0[i].x;
+          var y = points0[i].y;
+          var z = points0[i].z;
+          
+          var x0 = x * Math.cos(thetaZ) + y * Math.sin(thetaZ); 
+          var y0 = -x * Math.sin(thetaZ) + y * Math.cos(thetaZ);
+          var z0 = z;
+
+          var x1 = x0 * Math.cos(thetaY) - z0 * Math.sin(thetaY); 
+          var y1 = y0;
+          var z1 = -x0 * Math.sin(thetaY) + z0 * Math.cos(thetaY);
+
+          var x2 = x1;
+          var y2 = y1 * Math.cos(thetaX) + z1 * Math.sin(thetaX); 
+          var z2 = -y1 * Math.sin(thetaX) + z1 * Math.cos(thetaX);
+
+/*
+          x2 *= -1;
+          y2 *= -1;
+          z2 *= -1;
+ */         
+          if ( isInBound( x2, y2, z2) ){
+            points.push( new Point3d( x2, y2, z2, points0[i].label, points0[i].r ));
+          }
       };
-
-
+      
+      //console.log("x=" + thetaX + " y=" + thetaY + " z=" + thetaZ);
+      //  console.log(points);
   }
 
-  var keyPressed = {};
+  function isInBound( x, y, z ){
+
+    if ( y >= 0 ) { return true} 
+      else { return false}
+  }
+
+
+   var keyPressed = {};
 
   d3.select('body')  
   .on('keydown', function() {
@@ -226,19 +210,24 @@ function draw(){
   });
 
   var rad = aDegree * 1; 
-  var keyEvent = function() {
-
+var keyEvent = function() {
   if (keyPressed['Left']) {
-    rotation(-rad);
+    thetaZ -= rad;
+    rotation();
   }
   if (keyPressed['Up']) {
-    //triangle.y = isInBounds(y - triangle._speed, 'height');
+    $window.scrollTop(scrollTop);
+    thetaX += rad;
+    rotation();
   }
   if (keyPressed['Right']) {
-    rotation(rad);
+    thetaZ += rad;
+    rotation();
   }
   if (keyPressed['Down']) {
-    //triangle.y = isInBounds(y + triangle._speed, 'height');
+    $window.scrollTop(scrollTop);
+    thetaX -= rad;
+    rotation();
   }
   draw();
 };
